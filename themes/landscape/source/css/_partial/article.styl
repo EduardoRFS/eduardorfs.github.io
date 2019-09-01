@@ -1,15 +1,35 @@
 .article
-  margin: block-margin 0
+  margin: 24px 0
+  margin-bottom: 40px
+  position: relative
 
 .article-inner
-  @extend $block
   overflow: hidden
+  @media mq-normal
+    background: #f6f6f6
+    box-shadow: 1px 2px 3px #ddd
+    border: 1px solid color-border
+    border-radius: 3px
 
 .article-meta
   clearfix()
+  padding: 0 20px
+  position: absolute
+  top: -4px
+  @media mq-normal
+    position: initial
+    padding: 0
 
 .article-date
-  @extend $block-caption
+  text-decoration: none
+  text-transform: uppercase
+  letter-spacing: 2px
+  color: color-grey
+  margin-bottom: 1em
+  margin-left: 2px
+  line-height: 1em
+  text-shadow: 0 1px #fff
+  font-weight: bold
   float: left
 
 .article-category
