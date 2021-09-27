@@ -13,7 +13,7 @@ In this post I will try to propose / share a rank / level based typer which I be
 
 ## TLDR
 
-We can make so that the level on a rank / level based typer always only increases and couple the dead region to the generalized region so that generalization is free. That requires an additional pass that can be done together with typing for a "true" "free" generalization.
+We can make so that the level on a rank / level based typer always only increases and couple the dead region to the generalized region so that generalization is free. That requires an additional pass that can be done together with parsing for a "true" "free" generalization.
 
 ## How did I get here
 
