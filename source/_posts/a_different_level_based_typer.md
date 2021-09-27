@@ -83,7 +83,7 @@ This also requires that when unifying two types instead of the end type being al
 
 The following implementation does lambda-ranking + free generalization as described above, while I'm not so sure the current implementation is sound, I'm hoping the idea described here is.
 
-{% asset_link a_different_level_based_typer.ml [a_different_level_based_typer.ml] %}
+[a_different_level_based_typer.ml](https://github.com/EduardoRFS/eduardorfs.github.io/blob/gh-pages/code/a_different_level_based_typer.ml)
 
 ## References
 
