@@ -79,6 +79,10 @@ So during typing of an expression variables are created on the type after the cu
 
 This also requires that when unifying two types instead of the end type being always the smallest possible type it will be the largest possible type, so that unifying `'a[1] : 'b[2]` will results in `'b[2]`.
 
+## Value Restriction?
+
+Yeah, I don't know. But I believe the easiest way is to tag types with some crazy big level.
+
 ## Implementation
 
 The following implementation does lambda-ranking + free generalization as described above, while I'm not so sure the current implementation is sound, I'm hoping the idea described here is.
