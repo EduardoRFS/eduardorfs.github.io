@@ -178,15 +178,16 @@ let gen () = Level.enter ()
 let inst typ =
   let known = ref Uid_map.empty in
 
-  let rec loop typ = if is_quantified typ then loop_desc typ.desc else typ
-  and loop_desc = function
+  let rec loop typ = if is_quantified typ then loop_desc typ else typ
+  and loop_desc typ =
+    match typ.desc with
     | TVar -> (
         match Uid_map.find_opt typ.id !known with
         | Some typ -> typ
         | None ->
-            let typ = new_var () in
-            known := Uid_map.add typ.id typ !known;
-            typ)
+            let typ' = new_var () in
+            known := Uid_map.add typ.id typ' !known;
+            typ')
     | TLink typ -> loop typ
     | TArrow (param, return) ->
         let param = loop param in
@@ -272,7 +273,7 @@ let rec typeof context expr =
         in
         e2_typ
   in
-  (* like a true HM we generalize every expression*)
+  (* like a true HM we generalize every expression *)
   gen ();
   typ
 
