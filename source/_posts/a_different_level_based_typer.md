@@ -13,11 +13,11 @@ In this post I will try to propose / share a rank / level based typer which I be
 
 ## TLDR
 
-We can make so that the level on a rank / level based typer always only increases and couple the dead region to the generalized region so that generalization is free. That requires an additional pass that can be done together with parsing for a "true" "free" generalization.
+We can make so that the level on a rank / level based typer always only increases and couples the dead region to the generalized region so that generalization is free. That requires an additional pass that can be done together with parsing for a "true" "free" generalization.
 
 ## How did I get here
 
-Recently I've been studying how types and typers works, that includes classical like STLC(Simple Typed Lambda Calculus), HM (Damas-Hindley-Milner type system), System F.
+Recently I've been studying how types and typers work, that includes classics like STLC(Simple Typed Lambda Calculus), HM (Damas-Hindley-Milner type system), System F.
 
 And around the way I implemented many typers and start to understand how they work in theory and in practice(value restriction), most of them implemented in OCaml and as a natural thing I started to look more and more in the OCaml typer which I already had some intuitive understanding after so many `type constructor t would escape it's scope`.
 
@@ -27,7 +27,7 @@ But after reading [How OCaml type checker work](http://okmij.org/ftp/ML/generali
 
 ## What is a level based typer?
 
-The idea is that we're using instead of scanning the context during typing we're gonna use a level to know when a type variable is present in the scope then generalize it, this is effectivelly an algorithm of escape analysis. It was invented / discovered by Didier Rémy and it leads to a more efficient implementation of a HM typer.
+The idea is that we're using instead of scanning the context during typing we're gonna use a level to know when a type variable is present in the scope then generalize it, this is effectively an algorithm of escape analysis. It was invented / discovered by Didier Rémy and it leads to a more efficient implementation of a HM typer.
 
 Note that Didier Rémy and the literature calls levels, ranks, but the OCaml typer calls it levels, and it makes more sense in my head(probably bias), so I will be using levels here.
 
@@ -37,13 +37,13 @@ It also exists in two major variations:
 
 - lambda-ranking, every lambda introduces a new level and generalizes
 - let-ranking, every let introduces a new level and generalizes.
-  Each has it's advantages and the idea showed here can easily work with both, but my implementation will focus more on lambda-ranking as for me it looks that it it can be more easily extended.
+  Each has it's advantages and the idea showed here can easily work with both, but my implementation will focus more on lambda-ranking as for me it looks that it can be more easily extended.
 
 ## Generalization
 
 One of the properties of this family of typers is that generalization requires you to go over the type after typing some expression to check if it is bigger than the current level and mark it as quantified, as a level bigger than the current level lives in a dead region and never escaped it's region, so it's not present in the context, again escape analysis.
 
-While this is cheap as types are treated as always being really small, it's not free and will do O(n) operations being n the number of nodes in the type tree.
+While this is cheap as types are treated as always being really small, it's not free and will do O(n) operations being the number of nodes in the type tree.
 
 ## The dead region
 
@@ -59,7 +59,7 @@ So any variable outside of the dead region should be treated as a free variable 
 
 Because the dead region moves as typing is done and now the level that marks something to be quantified is the same as the level that delimits the dead region. So my proposal is essentially that the level that marks what is quantified is actually moving.
 
-You can imagine that the level that marks something as generalized is a line where everything below it, is not generalized and everything above it is generalized, currently we're moving every type that is not on the generalized level individually to above the line, here we will be actually moving the line so that all types which did not escape its scope are automatically treated as quantified. This makes so that generalization is now an O(1) operation, and effectivelly incrementing an integer.
+You can imagine that the level that marks something as generalized is a line where everything below it, is not generalized and everything above it is generalized, currently we're moving every type that is not on the generalized level individually to above the line, here we will be actually moving the line so that all types which did not escape its scope are automatically treated as quantified. This makes so that generalization is now an O(1) operation, and effectively incrementing an integer.
 
 ## Creating variables in the future
 
