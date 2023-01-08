@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>A journey into Reason Mobile | A tale about computers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="This is mostly a report on why simple things aren’t simple so no TLDR. And also a bit about Reason Mobile. ContextLast year(2019) when I was still employed I was looking at a cool piece of tech, calle">
+<meta name="keywords" content="ocaml,reason,native,mobile,cross-compile">
+<meta property="og:type" content="article">
+<meta property="og:title" content="A journey into Reason Mobile">
+<meta property="og:url" content="https://eduardorfs.github.io/2020/08/19/journey_into_reason_mobile/index.html">
+<meta property="og:site_name" content="A tale about computers">
+<meta property="og:description" content="This is mostly a report on why simple things aren’t simple so no TLDR. And also a bit about Reason Mobile. ContextLast year(2019) when I was still employed I was looking at a cool piece of tech, calle">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2022-11-13T20:00:01.400Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="A journey into Reason Mobile">
+<meta name="twitter:description" content="This is mostly a report on why simple things aren’t simple so no TLDR. And also a bit about Reason Mobile. ContextLast year(2019) when I was still employed I was looking at a cool piece of tech, calle">
+  
+    <link rel="alternate" href="/atom.xml" title="A tale about computers" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <!-- <a id="main-nav-toggle" class="nav-icon"></a> -->
+        
+        <a class="main-nav-link" href="/"
+          >Home</a
+        >
+        
+        <a class="main-nav-link" href="/archives"
+          >Archives</a
+        >
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a
+          id="nav-rss-link"
+          class="nav-icon"
+          href="/atom.xml"
+          title="RSS Feed"
+        ></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://eduardorfs.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-journey_into_reason_mobile" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/08/19/journey_into_reason_mobile/" class="article-date">
+  <time datetime="2020-08-19T08:10:17.000Z" itemprop="datePublished">2020-08-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      A journey into Reason Mobile
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>This is mostly a report on why simple things aren’t simple so no TLDR. And also a bit about Reason Mobile.</p>
+<h2 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h2><p>Last year(2019) when I was still employed I was looking at a cool piece of tech, called <code>Revery</code> a framework to develop desktop applications using Reason Native, JSX and super fast, also it’s not React, it felt really cool, trying some applications like Oni2 the performance was really impressive.</p>
+<p>At this time I was still employed and was working with embedded, on a device with 128mb of memory, running on a armv7hf linux box with a broken userspace running QT and using QML, a screen that could only make full updates 5 times per second, yes 5fps. Then I was really curious would it be possible to use something like Revery to make embedded development? Sure this thing can run Revery right?</p>
+<p>I was correct(I always am)</p>
+<h2 id="But-…-OCaml"><a href="#But-…-OCaml" class="headerlink" title="But … OCaml"></a>But … OCaml</h2><p>Normally I would say that a cool feature of Reason is being fully compatible with OCaml, so that you can easily use the tools from the OCaml ecosystem like the compiler, build system’s like <code>Dune</code> and even packages from <code>opam</code> to build native applications aka Reason Native.</p>
+<p>This time was a little bit different, see, using the OCaml ecosystem also makes Reason Native suffer from the same problems as the OCaml ecosystem, like missing proper tooling to cross compile and not having a great support for Android and iOS.</p>
+<p>Yeah the hardware could easily run it, it’s possible to run Revery with less than 64mb of memory and a potato as a CPU, it will not be exactly efficient on battery but that was okay for me, but the tooling? There was no tooling</p>
+<p>To make things worse, we also have a new tool, called <code>esy</code> which can consume opam and npm packages, while also making a really easy to reproduce environment, is a really cool piece of tech, but how does it works? Yeah sandboxing, and that completely break the previous attempts to cross compile from the OCaml ecosystem namely <code>opam-cross</code>.</p>
+<h2 id="The-easy-trick"><a href="#The-easy-trick" class="headerlink" title="The easy trick"></a>The easy trick</h2><p>The obvious choice is “caveman cross-compiling” just emulate the entire environment, sure, it did work, took a couple of hours and I got to compile binaries from Linux x86_64 to Linux ARMv7l, there is just a single detail, the reason why it took a couple of hours isn’t because the setup of the environment needed any trick, nope, with esy that “just works”, it took a couple hours because emulating an ISA is one of the slowest thing you can ever do if you’re doing it properly and especially emulating a RISC on a CISC like ARMv7l on x86_64.</p>
+<p>But the trick that I was doing is called full system emulation, there is also another trick which uses user-space emulation combined with binfmt to run a chroot(like a docker container) from one architecture in the other. That was a lot better, but probably still 5x slower than natively compiling on my desktop.</p>
+<h2 id="Hackish-Solution"><a href="#Hackish-Solution" class="headerlink" title="Hackish Solution"></a>Hackish Solution</h2><p>A couple of months ago, I was not employed anymore and had a lot of spare time, so I tried to properly address that by adding cross compiling support on <code>esy</code>, yeah that wasn’t so simple, modeling multiple versions of the same package turned out to be really tricky, and I didn’t have any proper knowledge on package managers, then I made a hackish solution, like really hackish, I don’t even want to tell you how it works, but trust me it’s a hackish solution.</p>
+<p>I called it <a href="https://github.com/EduardoRFS/reason-mobile" target="_blank" rel="noopener">reason-mobile</a> a bad name, but the intent was “providing tools to cross compile Reason to mobile aka Android and iOS”, on that … yeah I got it to work.</p>
+<p>This entire time I was only looking on Android, because it’s what I daily drive … no iOS wasn’t simpler. But well what you need to know now is that it works, in a <code>future post</code> the road to iOS can be discussed. Currently it works.</p>
+<h2 id="How-to-use-it"><a href="#How-to-use-it" class="headerlink" title="How to use it?"></a>How to use it?</h2><p>It’s a hackish solution, you clone the repository, <strong>put your project inside the root of the project</strong>, and run some magic, there is a example on the README, but the commented script is the following</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:EduardoRFS/reason-mobile.git</span><br><span class="line"><span class="built_in">cd</span> reason-mobile/hello-reason</span><br><span class="line"></span><br><span class="line"><span class="comment">## it will install the host dependencies</span></span><br><span class="line">esy install</span><br><span class="line"></span><br><span class="line"><span class="comment">## cursed node magic, don't ask</span></span><br><span class="line">node ../generate/dist/cli.js android.arm64</span><br><span class="line"></span><br><span class="line"><span class="comment">## builds all the dependencies for host and target</span></span><br><span class="line"><span class="comment">## it's going to take a while, seriously</span></span><br><span class="line">esy @android.arm64</span><br><span class="line"></span><br><span class="line"><span class="comment">## enter the patched esy shell</span></span><br><span class="line">esy @android.arm64 not-esy-setup <span class="variable">$SHELL</span></span><br></pre></td></tr></table></figure>
+
+<p>Inside this shell you can run the normal commands, like</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## it will build for Android ARM64</span></span><br><span class="line">dune build -x android.arm64</span><br><span class="line"></span><br><span class="line"><span class="comment">## binary located at</span></span><br><span class="line">ls -lah <span class="variable">$cur__target_dir</span>/default.android.arm64/bin/hello.exe</span><br></pre></td></tr></table></figure>
+
+<h2 id="Supported-platforms"><a href="#Supported-platforms" class="headerlink" title="Supported platforms"></a>Supported platforms</h2><ul>
+<li>android.arm64</li>
+<li>android.x86_64</li>
+<li>ios.arm64</li>
+<li>ios.simulator.x86_64</li>
+<li>linux.musl.x86_64</li>
+</ul>
+<h2 id="Ok-so-how-it-works"><a href="#Ok-so-how-it-works" class="headerlink" title="Ok, so how it works?"></a>Ok, so how it works?</h2><p>Mostly bad magic, and a lot of shell script hacked.</p>
+<p>Reads the <code>esy.lock</code> generated by <code>esy</code>, extract a lot of data using some low level commands from esy like <code>esy ls-build</code> and <code>esy build-plan</code>, duplicate every dependency adding a prefix to it, patch commands like <code>dune build</code>, add some hand made patches for broken dependencies, add a shell script wrapper to remove <code>OCAMLLIB</code> and <code>OCAMLPATH</code> from the environment as these’s are problematic with cross compilation.</p>
+<p>Then it generate a bunch of files inside <code>.mocks</code> and a “package.json” for the specific platform, so you can do <code>esy @android.arm64</code>, but that would still make your environment be broken so it has another hack, <code>esy @android.arm64 not-esy-setup &lt;command&gt;</code> which will execute commands in the patched environment.</p>
+<p>Simple as that</p>
+<h2 id="Limitations"><a href="#Limitations" class="headerlink" title="Limitations"></a>Limitations</h2><p>I tried all supported platforms from Linux and Mac, I have no idea if it works on Windows, my bet is that it will not even on cygwin but feel free to try.</p>
+<p>And there will be some bugs, if you need help with it feel free to contact me.</p>
+<h2 id="Future-and-possibilities"><a href="#Future-and-possibilities" class="headerlink" title="Future and possibilities"></a>Future and possibilities</h2><p>I started talking about Revery, yeah that was also maded and is <code>another post</code></p>
+<p>We also need a proper solution, integrated on <code>esy</code>, ideally doing a lot of magic.</p>
+<p>Maybe Reason React Native Native? You know, RRNN, maybe RNRN, it need’s a better name, but it’s also something that I’m looking for.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://eduardorfs.github.io/2020/08/19/journey_into_reason_mobile/" data-id="clcnpdste0003jusbkp5ti6pl" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/cross-compile/">cross-compile</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mobile/">mobile</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/native/">native</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/reason/">reason</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/09/26/a_different_level_based_typer/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          A different level based typer
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cross-compile/">cross-compile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linear/">linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mobile/">mobile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/native/">native</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reason/">reason</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/theory/">theory</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typer/">typer</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/cross-compile/" style="font-size: 10px;">cross-compile</a> <a href="/tags/linear/" style="font-size: 10px;">linear</a> <a href="/tags/mobile/" style="font-size: 10px;">mobile</a> <a href="/tags/native/" style="font-size: 10px;">native</a> <a href="/tags/ocaml/" style="font-size: 20px;">ocaml</a> <a href="/tags/reason/" style="font-size: 10px;">reason</a> <a href="/tags/theory/" style="font-size: 15px;">theory</a> <a href="/tags/typer/" style="font-size: 15px;">typer</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/01/08/weakening_on_linear_f/">A tale of sum types on Linear F</a>
+          </li>
+        
+          <li>
+            <a href="/2022/11/13/functional_programming_and_problem_space/">Functional programming and problem space</a>
+          </li>
+        
+          <li>
+            <a href="/2021/09/26/a_different_level_based_typer/">A different level based typer</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/19/journey_into_reason_mobile/">A journey into Reason Mobile</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Eduardo Rafael<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav> -->
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>A tale of sum types on Linear F | A tale about computers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="The Linear F is a system similar to System F◦, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
+<meta name="keywords" content="ocaml,typer,theory,linear">
+<meta property="og:type" content="article">
+<meta property="og:title" content="A tale of sum types on Linear F">
+<meta property="og:url" content="https://eduardorfs.github.io/2023/01/08/weakening_on_linear_f/index.html">
+<meta property="og:site_name" content="A tale about computers">
+<meta property="og:description" content="The Linear F is a system similar to System F◦, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2023-01-08T18:20:37.121Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="A tale of sum types on Linear F">
+<meta name="twitter:description" content="The Linear F is a system similar to System F◦, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
+  
+    <link rel="alternate" href="/atom.xml" title="A tale about computers" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <!-- <a id="main-nav-toggle" class="nav-icon"></a> -->
+        
+        <a class="main-nav-link" href="/"
+          >Home</a
+        >
+        
+        <a class="main-nav-link" href="/archives"
+          >Archives</a
+        >
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a
+          id="nav-rss-link"
+          class="nav-icon"
+          href="/atom.xml"
+          title="RSS Feed"
+        ></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://eduardorfs.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-weakening_on_linear_f" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2023/01/08/weakening_on_linear_f/" class="article-date">
+  <time datetime="2023-01-08T17:47:30.000Z" itemprop="datePublished">2023-01-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      A tale of sum types on Linear F
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>The <a href="https://github.com/EduardoRFS/linear-f/" target="_blank" rel="noopener">Linear F</a> is a system similar to <a href="https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf" target="_blank" rel="noopener">System F◦</a>, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism.</p>
+<h2 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h2><p>To encode sum types, weakening is required. By carrying the garbage around in a monad you can easily model do weakening on Linear F. As such you can encode sum types on Linear F. Proof <a href="https://github.com/EduardoRFS/linear-f/blob/main/examples/weak.linf#L34" target="_blank" rel="noopener">weak.linf</a></p>
+<h2 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h2><p>I’ve been playing with linear type systems for a while, currently I hold the opinion that some form of linear calculus is probably the right solution for a modern functional programming language.</p>
+<p>As such I’ve been trying to show that you can do everything in a pure linear calculus. By doing {church,scott}-encoding of every interesting primitive present in real languages, sadly many of the traditional encodings rely on weakening, which is not directly available on a linear calculus due to that, the traditional wisdom is that sum types are not possible in a pure linear calculus.</p>
+<h2 id="Explicit-Weakening"><a href="#Explicit-Weakening" class="headerlink" title="Explicit Weakening"></a>Explicit Weakening</h2><p>My hypothesis is that weakening can always be explicitly encoded in a linear system by carrying everything discard explicitly as a parameter.</p>
+<p>The main idea is that any function that relies on weakening can return all the discarded elements together with its output as a multiplicative products aka a pair.</p>
+<h3 id="Naive-Weakening-Encoding"><a href="#Naive-Weakening-Encoding" class="headerlink" title="Naive Weakening Encoding"></a>Naive Weakening Encoding</h3><p>The simplest encoding possible is to literally just return a pair, so to describe the affine term <code>x =&gt; y =&gt; x</code> would be written as <code>x =&gt; y =&gt; (x, y)</code>, the convention here is that the second element of the pair is just garbage and as such should be ignored.</p>
+<h3 id="Nicer-Weakening-Encoding"><a href="#Nicer-Weakening-Encoding" class="headerlink" title="Nicer Weakening Encoding"></a>Nicer Weakening Encoding</h3><p>A type encoding is possible for the garbage in the presence of existential types, the garbage bag can have the type of <code>Garbage === ∃x. x</code>, which can be encoded in Linear F. This makes so that a function to <a href="https://github.com/EduardoRFS/linear-f/blob/main/examples/weak.linf#L10" target="_blank" rel="noopener">collect garbage</a> can be done.</p>
+<h3 id="An-even-nicer-weakening-encoding"><a href="#An-even-nicer-weakening-encoding" class="headerlink" title="An even nicer weakening encoding"></a>An even nicer weakening encoding</h3><p>A nicer encoding can be done by making a monad for weakening, this makes so that handling garbage is implicit in the monadic context. <code>Weak A === Garbage -&gt; (A, Garbage)</code>, so any function doing weakening can have the type <code>A -&gt; Weak B</code>.</p>
+<h3 id="The-perfect-weakening-encoding"><a href="#The-perfect-weakening-encoding" class="headerlink" title="The perfect weakening encoding"></a>The perfect weakening encoding</h3><p>While monadic weakening is nice enough to actually use it, an even better one would be an encoding based on algebraic effects, such that the function <code>weak : ∀A. A -[Weak]&gt; ()</code> can be used to explicit weaken anything, such a function wills simply pack it as <code>Garbage</code> and call the effect handler, which can then decide what to do with such piece of data.</p>
+<p>This could be combined with first class support of the language as an implicit effect so that it behaves exactly like an affine system.</p>
+<h2 id="Back-to-Sum-Types"><a href="#Back-to-Sum-Types" class="headerlink" title="Back to Sum Types"></a>Back to Sum Types</h2><p>Many of the traditional church encodings for data rely on weakening, such as booleans and sum types, ex : <code>true === x =&gt; y =&gt; x</code>. As such those encodings seems to not work in a purely linear setting, but they can be done in an affine setting.</p>
+<p>And as shown above, weakening can be done on the Linear System F, which is contrary to some beliefs:</p>
+<blockquote>
+<p>[MZZ10] - we cannot encode linear sums in System F◦ as presented so far</p>
+</blockquote>
+<blockquote>
+<p><a href="https://oleg.fi/gists/posts/2019-06-26-linear-church-encodings.html#encoding-of-with" target="_blank" rel="noopener">Church encoding of linear types</a> - Unfortunate, but known fact. So, we cannot (at least obviously) simulate A &amp; B using something else.</p>
+</blockquote>
+<h3 id="Linear-F-Either"><a href="#Linear-F-Either" class="headerlink" title="Linear F + Either"></a>Linear F + Either</h3><p>Either is the canonical sum type, if you can describe it you can describe any other sum type, so showing Either is enough to show all sum types.</p>
+<p>Example for Either can be found at <a href="https://github.com/EduardoRFS/linear-f/blob/f95c751f04bf0097c9c7220bb5b9d686a381d1f7/examples/weak.linf#L34" target="_blank" rel="noopener">weak.linf</a>.</p>
+<h3 id="Linear-F-Bool"><a href="#Linear-F-Bool" class="headerlink" title="Linear F + Bool"></a>Linear F + Bool</h3><p>But a simpler example that is easier to analyze are booleans,</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// let's assume the weakening monad</span></span><br><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Weak</span></span> A === Garbage -&gt; Pair A Garbage <span class="keyword">in</span></span><br><span class="line"><span class="keyword">let</span> weak : forall A. A -&gt; Weak Unit === _ <span class="keyword">in</span></span><br><span class="line"><span class="keyword">let</span> map : forall A B. Weak A -&gt; (A -&gt; B) -&gt; Weak B === _ <span class="keyword">in</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// on booleans one of the arguments is always weakened</span></span><br><span class="line"><span class="class"><span class="keyword">type</span> <span class="title">Bool</span></span> === forall A. A -&gt; A -&gt; Weak A <span class="keyword">in</span></span><br><span class="line"><span class="keyword">let</span> <span class="literal">true</span> : Bool === fun (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) x y -&gt;</span><br><span class="line">  map (<span class="class"><span class="keyword">type</span> <span class="title">Unit</span></span>) (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>)</span><br><span class="line">    <span class="comment">// weakens y</span></span><br><span class="line">    (weak (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) y)</span><br><span class="line">    <span class="comment">// returns x</span></span><br><span class="line">    (fun unit -&gt; unit (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) x) <span class="keyword">in</span></span><br><span class="line"><span class="keyword">let</span> <span class="literal">false</span> : Bool === fun (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) x y -&gt;</span><br><span class="line">  map (<span class="class"><span class="keyword">type</span> <span class="title">Unit</span></span>) (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>)</span><br><span class="line">    <span class="comment">// weakens x</span></span><br><span class="line">    (weak (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) x)</span><br><span class="line">    <span class="comment">// returns y</span></span><br><span class="line">    (fun unit -&gt; unit (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) y) <span class="keyword">in</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// examples</span></span><br><span class="line"><span class="comment">/* because variables cannot appear twice, closures cannot be used</span></span><br><span class="line"><span class="comment">    so the solution is to pass functions, aka CPSify the matching</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">  A is the shared context between branches</span></span><br><span class="line"><span class="comment">  K is the return type of the matching */</span></span><br><span class="line"><span class="keyword">let</span> match_bool : forall A K. Bool -&gt; (A -&gt; K) -&gt; (A -&gt; K) -&gt; A -&gt; Weak K ===</span><br><span class="line">  fun (<span class="class"><span class="keyword">type</span> <span class="title">A</span></span>) (<span class="class"><span class="keyword">type</span> <span class="title">K</span></span>) b then_ else_ x -&gt;</span><br><span class="line">    b (<span class="class"><span class="keyword">type</span> <span class="title">K</span></span>) then_ else_ x <span class="keyword">in</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// slightly more concrete example, assumes integers</span></span><br><span class="line"><span class="keyword">let</span> incr_if_true : Bool -&gt; Int -&gt; Weak Int ===</span><br><span class="line">  fun b x -&gt;</span><br><span class="line">    <span class="comment">/* because x cannot appear twice,</span></span><br><span class="line"><span class="comment">       we need to do the case on a function */</span></span><br><span class="line">    b (<span class="class"><span class="keyword">type</span> <span class="title">Int</span></span>)</span><br><span class="line">      (fun (x : Int) -&gt; x + <span class="number">1</span>)</span><br><span class="line">      (fun (x : Int) -&gt; x)</span><br><span class="line">      <span class="comment">// actually apply</span></span><br><span class="line">      x</span><br></pre></td></tr></table></figure>
+
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf" target="_blank" rel="noopener">https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf</a></li>
+<li><a href="https://github.com/EduardoRFS/linear-f" target="_blank" rel="noopener">https://github.com/EduardoRFS/linear-f</a></li>
+<li><a href="https://oleg.fi/gists/posts/2019-06-26-linear-church-encodings.html" target="_blank" rel="noopener">https://oleg.fi/gists/posts/2019-06-26-linear-church-encodings.html</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://eduardorfs.github.io/2023/01/08/weakening_on_linear_f/" data-id="clcnpdstf0004jusb7yv8xwgf" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linear/">linear</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/theory/">theory</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typer/">typer</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2022/11/13/functional_programming_and_problem_space/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Functional programming and problem space</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cross-compile/">cross-compile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linear/">linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mobile/">mobile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/native/">native</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reason/">reason</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/theory/">theory</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typer/">typer</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/cross-compile/" style="font-size: 10px;">cross-compile</a> <a href="/tags/linear/" style="font-size: 10px;">linear</a> <a href="/tags/mobile/" style="font-size: 10px;">mobile</a> <a href="/tags/native/" style="font-size: 10px;">native</a> <a href="/tags/ocaml/" style="font-size: 20px;">ocaml</a> <a href="/tags/reason/" style="font-size: 10px;">reason</a> <a href="/tags/theory/" style="font-size: 15px;">theory</a> <a href="/tags/typer/" style="font-size: 15px;">typer</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/11/">November 2022</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/01/08/weakening_on_linear_f/">A tale of sum types on Linear F</a>
+          </li>
+        
+          <li>
+            <a href="/2022/11/13/functional_programming_and_problem_space/">Functional programming and problem space</a>
+          </li>
+        
+          <li>
+            <a href="/2021/09/26/a_different_level_based_typer/">A different level based typer</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/19/journey_into_reason_mobile/">A journey into Reason Mobile</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2023 Eduardo Rafael<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav> -->
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
