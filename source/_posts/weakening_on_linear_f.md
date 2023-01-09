@@ -12,13 +12,13 @@ The [Linear F](https://github.com/EduardoRFS/linear-f/) is a system similar to [
 
 ## TLDR
 
-To encode sum types, weakening is required. By carrying the garbage around in a monad you can easily model do weakening on Linear F. As such you can encode sum types on Linear F. Proof [weak.linf](https://github.com/EduardoRFS/linear-f/blob/main/examples/weak.linf#L34)
+To encode sum types, weakening is required. By carrying the garbage around in a monad you can easily model weakening on Linear F. As such you can encode sum types on Linear F. Proof [weak.linf](https://github.com/EduardoRFS/linear-f/blob/main/examples/weak.linf#L34)
 
 ## Context
 
 I've been playing with linear type systems for a while, currently I hold the opinion that some form of linear calculus is probably the right solution for a modern functional programming language.
 
-As such I've been trying to show that you can do everything in a pure linear calculus. By doing {church,scott}-encoding of every interesting primitive present in real languages, sadly many of the traditional encodings rely on weakening, which is not directly available on a linear calculus due to that, the traditional wisdom is that sum types are not possible in a pure linear calculus.
+As such I've been trying to show that you can do everything in a pure linear calculus. By doing {church,scott}-encoding of every interesting primitive present in real languages, sadly many of the traditional encodings rely on weakening, which is not directly available on a linear calculus. Due to that, the traditional wisdom is that sum types are not possible in a pure linear calculus.
 
 ## Explicit Weakening
 
@@ -40,7 +40,7 @@ A nicer encoding can be done by making a monad for weakening, this makes so that
 
 ### The perfect weakening encoding
 
-While monadic weakening is nice enough to actually use it, an even better one would be an encoding based on algebraic effects, such that the function `weak : ∀A. A -[Weak]> ()` can be used to explicit weaken anything, such a function wills simply pack it as `Garbage` and call the effect handler, which can then decide what to do with such piece of data.
+While monadic weakening is nice enough to actually use it, an even better one would be an encoding based on algebraic effects, such that the function `weak : ∀A. A -[Weak]> ()` can be used to explicit weaken anything, such a function will simply pack it as `Garbage` and call the effect handler, which can then decide what to do with such piece of data.
 
 This could be combined with first class support of the language as an implicit effect so that it behaves exactly like an affine system.
 
