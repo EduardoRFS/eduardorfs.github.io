@@ -8,7 +8,7 @@ tags:
   - theory
 ---
 
-The [Linear F](https://github.com/EduardoRFS/linear-f/) is a system similar to [System F◦](https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf), but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism.
+The [Linear F](https://github.com/EduardoRFS/linear-f/) is a system similar to [System F°](https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf), but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism.
 
 ## TLDR
 
@@ -50,7 +50,7 @@ Many of the traditional church encodings for data rely on weakening, such as boo
 
 And as shown above, weakening can be done on the Linear System F, which is contrary to some beliefs:
 
-> [MZZ10] - we cannot encode linear sums in System F◦ as presented so far
+> [MZZ10] - we cannot encode linear sums in System F° as presented so far
 
 > [Church encoding of linear types](https://oleg.fi/gists/posts/2019-06-26-linear-church-encodings.html#encoding-of-with) - Unfortunate, but known fact. So, we cannot (at least obviously) simulate A & B using something else.
 
