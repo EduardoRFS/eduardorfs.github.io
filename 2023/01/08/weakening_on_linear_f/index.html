@@ -7,18 +7,18 @@
   
   <title>A tale of sum types on Linear F | A tale about computers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="The Linear F is a system similar to System F◦, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
+  <meta name="description" content="The Linear F is a system similar to System F°, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
 <meta name="keywords" content="ocaml,typer,theory,linear">
 <meta property="og:type" content="article">
 <meta property="og:title" content="A tale of sum types on Linear F">
 <meta property="og:url" content="https://eduardorfs.github.io/2023/01/08/weakening_on_linear_f/index.html">
 <meta property="og:site_name" content="A tale about computers">
-<meta property="og:description" content="The Linear F is a system similar to System F◦, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
+<meta property="og:description" content="The Linear F is a system similar to System F°, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2023-01-09T20:54:58.405Z">
+<meta property="og:updated_time" content="2023-01-09T21:01:30.331Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="A tale of sum types on Linear F">
-<meta name="twitter:description" content="The Linear F is a system similar to System F◦, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
+<meta name="twitter:description" content="The Linear F is a system similar to System F°, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism. TLDRTo encode sum types, weakening">
   
     <link rel="alternate" href="/atom.xml" title="A tale about computers" type="application/atom+xml">
   
@@ -90,7 +90,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>The <a href="https://github.com/EduardoRFS/linear-f/" target="_blank" rel="noopener">Linear F</a> is a system similar to <a href="https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf" target="_blank" rel="noopener">System F◦</a>, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism.</p>
+        <p>The <a href="https://github.com/EduardoRFS/linear-f/" target="_blank" rel="noopener">Linear F</a> is a system similar to <a href="https://www.cis.upenn.edu/~stevez/papers/MZZ10.pdf" target="_blank" rel="noopener">System F°</a>, but where the traditional type kind was removed, so it is a pure linear lambda calculus with first-class polymorphism.</p>
 <h2 id="TLDR"><a href="#TLDR" class="headerlink" title="TLDR"></a>TLDR</h2><p>To encode sum types, weakening is required. By carrying the garbage around in a monad you can easily model weakening on Linear F. As such you can encode sum types on Linear F. Proof <a href="https://github.com/EduardoRFS/linear-f/blob/main/examples/weak.linf#L34" target="_blank" rel="noopener">weak.linf</a></p>
 <h2 id="Context"><a href="#Context" class="headerlink" title="Context"></a>Context</h2><p>I’ve been playing with linear type systems for a while, currently I hold the opinion that some form of linear calculus is probably the right solution for a modern functional programming language.</p>
 <p>As such I’ve been trying to show that you can do everything in a pure linear calculus. By doing {church,scott}-encoding of every interesting primitive present in real languages, sadly many of the traditional encodings rely on weakening, which is not directly available on a linear calculus. Due to that, the traditional wisdom is that sum types are not possible in a pure linear calculus.</p>
@@ -104,7 +104,7 @@
 <h2 id="Back-to-Sum-Types"><a href="#Back-to-Sum-Types" class="headerlink" title="Back to Sum Types"></a>Back to Sum Types</h2><p>Many of the traditional church encodings for data rely on weakening, such as booleans and sum types, ex : <code>true === x =&gt; y =&gt; x</code>. As such those encodings seems to not work in a purely linear setting, but they can be done in an affine setting.</p>
 <p>And as shown above, weakening can be done on the Linear System F, which is contrary to some beliefs:</p>
 <blockquote>
-<p>[MZZ10] - we cannot encode linear sums in System F◦ as presented so far</p>
+<p>[MZZ10] - we cannot encode linear sums in System F° as presented so far</p>
 </blockquote>
 <blockquote>
 <p><a href="https://oleg.fi/gists/posts/2019-06-26-linear-church-encodings.html#encoding-of-with" target="_blank" rel="noopener">Church encoding of linear types</a> - Unfortunate, but known fact. So, we cannot (at least obviously) simulate A &amp; B using something else.</p>
