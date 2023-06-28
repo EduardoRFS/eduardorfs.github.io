@@ -7,65 +7,68 @@ tags:
   - lambda
 ---
 
-The [Lambda Calculus](https://en.wikipedia.org/wiki/Lambda_calculus) is one of the simplests rewriting systems ever made and while all of its objects are functions it is still a [turing complete](https://en.wikipedia.org/wiki/Church%E2%80%93Turing_thesis) system.
+The [Lambda Calculus](https://en.wikipedia.org/wiki/Lambda_calculus) is one of the simplest rewriting systems in existence. Even though all of its constructs are functions, it is still [turing complete](https://en.wikipedia.org/wiki/Church%E2%80%93Turing_thesis).
 
 ## Church Encoding
 
-One of the most natural things to do in the Lambda Calculus is to describe data such as the booleans, naturals, pairs and list. This is often done through [Church encoding](https://en.wikipedia.org/wiki/Church_encoding), but most people don't seem to be able to mechanically derive those encodings.
+Describing data in the Lambda Calculus – booleans, natural numbers, pairs and list – is very natural. It's often done through [Church encoding](https://en.wikipedia.org/wiki/Church_encoding). But most people have a hard time deriving that encoding mechanically. In this post, I'll teach you how to do it.
 
 ## Computing Power
 
-The main insight provided here is that church encodings is just the internalization of the elimination function for some data.
+Here's the main insight: we can get the church encoding for some data by internalizing its elimination function.
 
-Every data structure seems to come with a function that is capable of doing every fundamental operation on the data itself. This single function provides all the computing power possible for the data. Such as `case` for booleans and `fold` for list.
+We postulate that every data structure comes with a function capable of doing every fundamental operation on itself. A single function, providing _all_ computing power possible for the data. Like `case` for booleans, or `fold` for list.
 
-In fact, it is easy to notice that anything that can describe `case` can be used as a boolean, such as using the empty list as `false` and all non-empty list as `true`.
+What's more, any piece of data that can describe `case` can be used as a boolean. An empty list can represent `false`, and any non-empty list can convey `true`.
 
 ## Booleans
 
-Let's reinvent church encoding for the booleans step by step, as mentioned above to describe some piece of data, internalizing the elimination rule is enough, for booleans this is the `case` function.
+The boolean elimination function is `case` (like `if` in most popular programming languages, but as a function).
 
-In more concrete terms, the goal is to meet a definition of `true`, `false` and `case` that suffices the following rules:
+Equipped with that knowledge, we can reinvent the church encoding for booleans, step by step. We apply our main insight: internalizing the elimination rule.
+
+More concretely, our goal is to come up with a definition of `true`, `false` and `case` that satisfies the following rules:
 
 ```rust
 true === case true;
 false === case false;
-case true then else === then;
-case false then else === else;
+(case true then else) === then;
+(case false then else) === else;
 ```
 
-A nice property to notice here is that `b === case b`, so a valid definition is that `case === id`, which leads to:
+First, we notice how `b === case b` – the identity function. We can define `case` as such:
 
 ```rust
 case = x => x;
 (case true) then else === then;
 (case false) then else === else;
-// implies in
+// which implies
 true then else === then;
 false then else === else;
 ```
 
-Well `true` and `false` would need to be functions of the format `then => else => _` to meet the rules, but they need to return different values.
+That's not yet sufficient: to meet our rules, `true` and `false` will need to be functions of the format `then => else => _`. And return different values.
 
-Now we have a set of equations that can be solved, by applying some algebra.
+We can express the above using a set of equations, and use algebra to solve them:
 
 ```rust
-// assume
-true = then => else => ?true;
+// assuming
+true = then => else => #true;
+// apply the function
 true then else === then;
-// expands
-(then => else => ?true) then else === then;
-// reduce
-?true === then;
+// we expand it to:
+(then => else => #true) then else === then;
+// and reduce to obtain our result:
+#true === then;
 
-// same for false
-false = then => else => ?false;
+// we do the same for `false`
+false = then => else => #false;
 false then else === else;
-(then => else => ?false) then else === else;
-?false === else;
+(then => else => #false) then else === else;
+#false === else;
 ```
 
-This leads to the canonical representation of the booleans.
+We can write the above in the canonical representation for booleans.
 
 ```rust
 true = then => else => then;
@@ -75,21 +78,21 @@ case = x => x;
 
 ## Finding types
 
-Another interesting property of the internalized version being the same as the elimination function is that the type of `fold n` and `n` will be the same, in fact a good way to find is to start with the type of the elimination function:
+Another interesting property of our main insight: the type for `fold n` and `n` will be the same. We can understand that if we start with the type of the elimination function:
 
 ```rust
-// make Nat equal to the type of fold and remove the first parameter
+// make Nat equal to the type of `fold` and remove the first parameter
 fold : (n : Nat) -> (A : Type) -> A -> (A -> A) -> A;
-Nat = (n : Nat) -> (A : Type) -> A -> (A -> A) -> A;
-Nat = (A : Type) -> A -> (A -> A) -> A;
+Nat  = (n : Nat) -> (A : Type) -> A -> (A -> A) -> A;
+Nat  = (A : Type) -> A -> (A -> A) -> A;
 
-// make Bool equal to the type of case and remove the first parameter
+// make Bool equal to the type of `case` and remove the first parameter
 case : (b : Bool) -> (A : Type) -> A -> A -> A;
 Bool = (b : Bool) -> (A : Type) -> A -> A -> A;
 Bool = (A : Type) -> A -> A -> A;
 ```
 
-An interesting property is that for most examples of structural recursion, there is no type level recursion.
+It's interesting to notice the property that, for most examples of structural recursion, there is no type level recursion.
 
 ## References
 
