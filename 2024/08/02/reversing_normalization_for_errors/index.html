@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Reversing normalization for errors | A tale about computers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Normalization is a technique used to ensure that any two objects that represent the same thing have the same form aka the normal form, a unique form of an expression. What is the problem?Normalization">
+<meta name="keywords" content="theory,errors,rewriting">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reversing normalization for errors">
+<meta property="og:url" content="https://eduardorfs.github.io/2024/08/02/reversing_normalization_for_errors/index.html">
+<meta property="og:site_name" content="A tale about computers">
+<meta property="og:description" content="Normalization is a technique used to ensure that any two objects that represent the same thing have the same form aka the normal form, a unique form of an expression. What is the problem?Normalization">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2024-08-03T00:38:49.518Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Reversing normalization for errors">
+<meta name="twitter:description" content="Normalization is a technique used to ensure that any two objects that represent the same thing have the same form aka the normal form, a unique form of an expression. What is the problem?Normalization">
+  
+    <link rel="alternate" href="/atom.xml" title="A tale about computers" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <!-- <a id="main-nav-toggle" class="nav-icon"></a> -->
+        
+        <a class="main-nav-link" href="/"
+          >Home</a
+        >
+        
+        <a class="main-nav-link" href="/archives"
+          >Archives</a
+        >
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a
+          id="nav-rss-link"
+          class="nav-icon"
+          href="/atom.xml"
+          title="RSS Feed"
+        ></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://eduardorfs.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-reversing_normalization_for_errors" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2024/08/02/reversing_normalization_for_errors/" class="article-date">
+  <time datetime="2024-08-02T23:00:00.000Z" itemprop="datePublished">2024-08-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Reversing normalization for errors
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Normalization is a technique used to ensure that any two objects that represent the same thing have the same form aka the normal form, a unique form of an expression.</p>
+<h2 id="What-is-the-problem"><a href="#What-is-the-problem" class="headerlink" title="What is the problem?"></a>What is the problem?</h2><p>Normalization is one of the core concepts in programming languages, but it leads to not great errors and normalization is everywhere, but hopefully reversing normalization may save us.</p>
+<h2 id="Normalization-is-evaluation"><a href="#Normalization-is-evaluation" class="headerlink" title="Normalization is evaluation"></a>Normalization is evaluation</h2><p>Normalization is useful whenever we want to do pretty much anything with an object, if I want to (print <code>3 + 2</code> times the message <code>Hello</code>) then I first normalize <code>3 + 2</code> to <code>5</code> and then I will (print <code>5</code> times the message <code>Hello</code>).</p>
+<p>The normal form of many expressions are known as a value, so the act of producing a value is also known as <strong>evaluation</strong>. In fact “running” a program is no different from normalizing it.</p>
+<h2 id="Normalization-for-type-checking"><a href="#Normalization-for-type-checking" class="headerlink" title="Normalization for type checking"></a>Normalization for type checking</h2><p>Normalization is also useful whenever we want to check if two objects are equal, such as during type checking.</p>
+<p>How does TypeScript knows that the following code should be allowed?</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Id&lt;A&gt; = A;</span><br><span class="line"><span class="keyword">const</span> f = (x: <span class="built_in">number</span>): Id&lt;<span class="built_in">number</span>&gt; =&gt; x;</span><br></pre></td></tr></table></figure>
+
+<p>Well the function wants to return a <code>Id&lt;number&gt;</code> but it is actually returning a <code>number</code>, but this works, because the normal form of <code>Id&lt;number&gt;</code> is actually <code>number</code> and <code>number == number</code> is trivially true.</p>
+<p>So by first normalizing the types we reduced the entire checking process to a simple equality. This is the gist of pretty much all fancy’ish type checking.</p>
+<h3 id="But-what-happens-when-it-fails"><a href="#But-what-happens-when-it-fails" class="headerlink" title="But what happens when it fails?"></a>But what happens when it fails?</h3><p>Let’s say you wrote a bug and you’re trying to debug it, you have a hunch of where the issue should be and as a professional programmer your first reflex is to add a debug message to check.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> f = <span class="function">(<span class="params">x: <span class="built_in">number</span></span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// checking if f is called with the right value</span></span><br><span class="line">  <span class="built_in">console</span>.log(x);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>After running the program, you find out that <code>x</code> is actually wrong, it should be <code>13</code> but it’s <code>12</code>, the main issue is that <code>f</code> is being called in the entire codebase, you can check stack traces, but those are hard to read, such if you have bad async code, it would be really nice if you could just regex search the codebase and find the desired call site or even better just ask the language where this value was produced.</p>
+<p>Sadly this doesn’t work, maybe on the call site it was actually called with <code>f(5 + 7)</code> and you only know <code>12</code>, also, sadly the language doesn’t know where a value is created, as only the actual value is known but not how it was created, as such, good luck.</p>
+<h3 id="This-actually-happens-because-types"><a href="#This-actually-happens-because-types" class="headerlink" title="This actually happens, because types"></a>This actually happens, because types</h3><p>Another case, likely more realistic and painful are those on the type level. Let’s check the previous example, but now with a twist, the type constructor is wrong.</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// far.away.lib.ts</span></span><br><span class="line"><span class="keyword">type</span> Id&lt;A&gt; = <span class="built_in">string</span>; <span class="comment">// wrong</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// your.crud.ts</span></span><br><span class="line"><span class="keyword">const</span> f = (x: <span class="built_in">number</span>): Id&lt;<span class="built_in">number</span>&gt; =&gt; x;</span><br></pre></td></tr></table></figure>
+
+<p>The typer will try to do the same thing, it is expecting <code>Id&lt;number&gt;</code> and you returned <code>number</code>, but this time normalizing <code>Id&lt;number&gt;</code> actually produces <code>string</code> and <code>string == number</code> is false.</p>
+<p>This would not be a major problem, but when reporting the error it reports <code>string is not a number</code>, which is a reasonable error, except that nowhere on your code there is any mention of <code>string</code>. The issue is that the typer is giving you the diff over the normal form, which may look unrelated to the actual annotations.</p>
+<h2 id="Solving-the-problem"><a href="#Solving-the-problem" class="headerlink" title="Solving the problem"></a>Solving the problem</h2><p>While there is a lot of partial solutions for both issues, I’ve been thinking about it for a while, trying to find a principled solution that always works, hopefully one that can be implemented without too much overhead for a debugging build and that works nicely for the small interpreters inside of typers.</p>
+<p>Originally my hope was to just preserve the original form as much as possible, this is okay(ish) for type checking because the forms are small and you don’t need to hold intermediary values, but still, that implies on preserving a lot of versions of the same type, which is not very efficient.</p>
+<h3 id="Reductions-as-equivalences"><a href="#Reductions-as-equivalences" class="headerlink" title="Reductions as equivalences"></a>Reductions as equivalences</h3><p>Recently I was toying with an idea about rewriting systems, making reductions into actual equivalences, to make any reduction into an equivalence, so I played with adding the reverse reduction on the system, but most reductions actually erase information, so you don’t know what was the “original” term.</p>
+<p>The reductions as equivalences thing, didn’t go anywhere yet, but the idea of reversing reductions is quite interesting.</p>
+<h3 id="Finally-reversing-reductions"><a href="#Finally-reversing-reductions" class="headerlink" title="Finally, reversing reductions"></a>Finally, reversing reductions</h3><p>The key insight here, is that if you can reverse all the reductions, then you can just go back to the original term, producing wherever error message you want and showing wherever intermediary step you want.</p>
+<p>The only requirement is to track which reductions happened, I will be calling this the reduction’s receipt. Here it will be a special node on my tree, but in a efficient implementation it is likely tracked in a different way, I have a couple ideas, but this is for another post.</p>
+<p>Here I will focus on <code>evaluation</code> of the lambda calculus, while this may look unrelated to typing, the idea is the same, in fact you can think about type constructors as lambda’s on the type level. As such the original example could still be produced.</p>
+<h3 id="A-reversible-LC"><a href="#A-reversible-LC" class="headerlink" title="A reversible LC"></a>A reversible LC</h3><p>Let’s imagine the Lambda Calculus extended with let.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Term (M, N) ::=</span><br><span class="line">  | x        <span class="comment">// var</span></span><br><span class="line">  | x =&gt; M   <span class="comment">// lambda</span></span><br><span class="line">  | M N      <span class="comment">// apply</span></span><br><span class="line">  | x = N; M <span class="comment">// let</span></span><br></pre></td></tr></table></figure>
+
+<p>It has two reductions, beta and subst.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(x =&gt; M) N |-&gt; x = N; M  <span class="comment">// beta</span></span><br><span class="line">x = N; M |-&gt; M&#123;x := N&#125;   <span class="comment">// subst</span></span><br></pre></td></tr></table></figure>
+
+<p>Beta will produce <code>let</code> and subst will eliminate them, this is a more or less traditional system. Here you can notice that both reductions actually loose information, this can be verified because both the following examples will produce the same term and as such you cannot dinstinguish between them after normalized.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(x = <span class="number">2</span>; f x) <span class="comment">// you wrote this</span></span><br><span class="line">(f <span class="number">2</span>) <span class="comment">// output</span></span><br><span class="line"></span><br><span class="line">(x =&gt; f x) <span class="number">2</span> <span class="comment">// but what if you wrote this?</span></span><br><span class="line">(x = <span class="number">2</span>; f x)</span><br><span class="line">(f <span class="number">2</span>) <span class="comment">// output</span></span><br></pre></td></tr></table></figure>
+
+<p>Of course, this is intended as they share the same normal form, but here the goal is to be able to actually figure out which one you wrote, so let’s extend the system and tweak the reduction rules such that they preserve the receipts.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Receipt (R) ::=</span><br><span class="line">  | [beta]</span><br><span class="line">  | [x = N] <span class="comment">// subst</span></span><br><span class="line">  | [x] <span class="comment">// var</span></span><br><span class="line">Term (M, N) ::=</span><br><span class="line">  | #R; M <span class="comment">// receipt</span></span><br><span class="line"></span><br><span class="line">(x =&gt; M) N |-&gt; <span class="meta">#[beta]</span>; x = N; M  <span class="comment">// beta</span></span><br><span class="line">x = N; M |-&gt; <span class="meta">#[x = N]</span>; M&#123;x := <span class="meta">#[x]</span>; N&#125; <span class="comment">// subst</span></span><br></pre></td></tr></table></figure>
+
+<p>Now let’s check the original examples using those modified rules.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">(x = <span class="number">2</span>; f x)</span><br><span class="line">(<span class="meta">#[x = 2]</span>; f (<span class="meta">#[x]</span>; <span class="number">2</span>)) <span class="comment">// actual output</span></span><br><span class="line">(f <span class="number">2</span>) <span class="comment">// prune receipt</span></span><br><span class="line"></span><br><span class="line">(x =&gt; f x) <span class="number">2</span> <span class="comment">// but what if you wrote this?</span></span><br><span class="line">(<span class="meta">#[beta]</span>; x = <span class="number">2</span>; f x)</span><br><span class="line">(<span class="meta">#[beta]</span>; <span class="meta">#[x = 2]</span>; f (<span class="meta">#[x]</span>; <span class="number">2</span>)) <span class="comment">// actual output</span></span><br><span class="line">(f <span class="number">2</span>) <span class="comment">// prune receipt</span></span><br></pre></td></tr></table></figure>
+
+<p>Notice that they actually produce different results, so normalization is broken. And yes technically it is, but by prunning those they actually go back to producing the same normal form. But now all the original information is preserved and as such those rules can be reversed.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[beta]</span>; x = N; M |-&gt; (x =&gt; M) N  <span class="comment">// rev-beta</span></span><br><span class="line"><span class="meta">#[x = N]</span>; M&#123;x := <span class="meta">#[x]</span>; N&#125; |-&gt; x = N; M  <span class="comment">// rev-subst</span></span><br></pre></td></tr></table></figure>
+
+<p>Mostly the final goal is to have the following</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">eval : (initial : Term) -&gt; (normal : Term);</span><br><span class="line">rev : (normal : Term) -&gt; (initial : Term);</span><br><span class="line"></span><br><span class="line">eval_rev_is_id : (initial : Term) -&gt; term == rev (eval term);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Typers-are-interpreters-and-I-gotta-go-fast"><a href="#Typers-are-interpreters-and-I-gotta-go-fast" class="headerlink" title="Typers are interpreters and I gotta go fast"></a>Typers are interpreters and I gotta go fast</h3><p>Another idea that I’ve been playing for a while is that typers are just interpreters, this allows all the techniques developed for evaluating code to be used while typing, such as abstract machines, closure conversion, defunctionalization, bump allocation and JITs, to be used here.</p>
+<p>This is especially important when thinking about languages that have a lot of computing on equality, such as dependently typed languages or TypeScript. But under the right circunstances it may also be quite interesting to speeding up elaboration.</p>
+<h2 id="This-is-half-the-problem"><a href="#This-is-half-the-problem" class="headerlink" title="This is half the problem"></a>This is half the problem</h2><p>Reversing reductions doesn’t solve the error messages problem, but it unlocks the best possible results, by having the full term, we can then start producing better tools for fancier type systems. Maybe more important than that, it also allows for much faster development of programming languages, hopefully type errors don’t require almost complete rewrites of codebases, as long as you can add receipts back into the system, you’re good.</p>
+<p>I also need to think in a slightly more formal way about the receipts and try further to find prior research on them, the general trick seems to work but as always, it’s easy to screw it up. Follow me on Twitter(not X) and Twitch for that.</p>
+<p><a href="https://x.com/TheEduardoRFS/" target="_blank" rel="noopener">https://x.com/TheEduardoRFS/</a><br><a href="https://www.twitch.tv/EduardoRFS" target="_blank" rel="noopener">https://www.twitch.tv/EduardoRFS</a></p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Normal_form_(abstract_rewriting)" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Normal_form_(abstract_rewriting)</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Normalisation_by_evaluation" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Normalisation_by_evaluation</a></li>
+<li><a href="https://inria.hal.science/hal-00780344v1/document" target="_blank" rel="noopener">https://inria.hal.science/hal-00780344v1/document</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://eduardorfs.github.io/2024/08/02/reversing_normalization_for_errors/" data-id="clzdev4xm00057fsbmodpwfjp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/errors/">errors</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rewriting/">rewriting</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/theory/">theory</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/01/08/installing_my_arch_linux/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Installing my Arch Linux</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cross-compile/">cross-compile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/errors/">errors</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/induction/">induction</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lambda/">lambda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linear/">linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mobile/">mobile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/native/">native</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reason/">reason</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rewriting/">rewriting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setup/">setup</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/theory/">theory</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typer/">typer</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/cross-compile/" style="font-size: 10px;">cross-compile</a> <a href="/tags/errors/" style="font-size: 10px;">errors</a> <a href="/tags/induction/" style="font-size: 10px;">induction</a> <a href="/tags/lambda/" style="font-size: 12.5px;">lambda</a> <a href="/tags/linear/" style="font-size: 10px;">linear</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/mobile/" style="font-size: 10px;">mobile</a> <a href="/tags/native/" style="font-size: 10px;">native</a> <a href="/tags/ocaml/" style="font-size: 15px;">ocaml</a> <a href="/tags/reason/" style="font-size: 10px;">reason</a> <a href="/tags/rewriting/" style="font-size: 10px;">rewriting</a> <a href="/tags/setup/" style="font-size: 10px;">setup</a> <a href="/tags/theory/" style="font-size: 20px;">theory</a> <a href="/tags/typer/" style="font-size: 17.5px;">typer</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">August 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/08/02/reversing_normalization_for_errors/">Reversing normalization for errors</a>
+          </li>
+        
+          <li>
+            <a href="/2024/01/08/installing_my_arch_linux/">Installing my Arch Linux</a>
+          </li>
+        
+          <li>
+            <a href="/2024/01/01/very_dependent_types/">Induction and self dependent types</a>
+          </li>
+        
+          <li>
+            <a href="/2023/06/27/internalizing_computing/">Internalizing computing</a>
+          </li>
+        
+          <li>
+            <a href="/2023/01/08/weakening_on_linear_f/">A tale of sum types on Linear F</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <!-- <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2024 Eduardo Rafael<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer> -->
+
+    </div>
+    <!-- <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav> -->
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
