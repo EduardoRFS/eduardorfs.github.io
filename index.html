@@ -161,254 +161,6 @@
 
 
   
-    <article id="post-installing_my_arch_linux" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2024/01/08/installing_my_arch_linux/" class="article-date">
-  <time datetime="2024-01-08T18:30:56.600Z" itemprop="datePublished">2024-01-08</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2024/01/08/installing_my_arch_linux/">Installing my Arch Linux</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Unlike Windows, macOS and other Linux distro’s, Arch Linux is not exactly a “prebuilt” operating system, it is a set of tools to build your own OS, as such using Arch Linux is not a single experience, each installation is pretty much unique with it’s own upsides and downsides.</p>
-<h2 id="YAGNI"><a href="#YAGNI" class="headerlink" title="YAGNI"></a>YAGNI</h2><p>I’ve been coding and using Linux for more than a decade and during this time I noticed one useful principle, “You aren’t gonna need it” (<strong>YAGNI</strong>), applies to pretty much everything, as you add more “stuff”, it breaks more often and it get’s harder to fix.</p>
-<p>As such my OS is quite bare, having tools for all my needs, but no more than that. In practice that makes it quite stable and maintanence free.</p>
-<h2 id="Choices"><a href="#Choices" class="headerlink" title="Choices"></a>Choices</h2><p>An OS has many components, here is a table of what I’ve been using for a while. As a recommendation, try to understand at a high-level what every one of those do and to some extent “how” they do it.</p>
-<table>
-<thead>
-<tr>
-<th>Description</th>
-<th>Actual tool</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Package Manager</td>
-<td>pacman + yay</td>
-</tr>
-<tr>
-<td>Network Manager</td>
-<td>networkmanager</td>
-</tr>
-<tr>
-<td>Display Server</td>
-<td>xorg</td>
-</tr>
-<tr>
-<td>Audio Server</td>
-<td>pipewire</td>
-</tr>
-<tr>
-<td>Window Manager</td>
-<td>i3</td>
-</tr>
-<tr>
-<td>Session Manager</td>
-<td>xinit</td>
-</tr>
-<tr>
-<td>Shell</td>
-<td>zsh + oh-my-zsh</td>
-</tr>
-<tr>
-<td>Keyring Manager</td>
-<td>gnome-keyring</td>
-</tr>
-<tr>
-<td>Audio Manager</td>
-<td>pavucontrol</td>
-</tr>
-<tr>
-<td>Bluetooth Manager</td>
-<td>bluetoothctl</td>
-</tr>
-<tr>
-<td>Terminal</td>
-<td>alacritty</td>
-</tr>
-<tr>
-<td>Text Editor</td>
-<td>nano + VSCode</td>
-</tr>
-<tr>
-<td>Web Browser</td>
-<td>Firefox + Chrome</td>
-</tr>
-<tr>
-<td>File Manager</td>
-<td>thunar</td>
-</tr>
-<tr>
-<td>Archive Manager</td>
-<td>file-roller</td>
-</tr>
-<tr>
-<td>System Monitor</td>
-<td>htop + amdgpu_top</td>
-</tr>
-<tr>
-<td>Screenshot</td>
-<td>flameshot</td>
-</tr>
-<tr>
-<td>Locale</td>
-<td>en_US.UTF-8</td>
-</tr>
-<tr>
-<td>Time zone</td>
-<td>America/Sao_Paulo</td>
-</tr>
-<tr>
-<td>Keyboard Layout</td>
-<td>br,us</td>
-</tr>
-<tr>
-<td>Font</td>
-<td>DejaVu + Fira Code</td>
-</tr>
-</tbody></table>
-<h2 id="My-install"><a href="#My-install" class="headerlink" title="My install"></a>My install</h2><p>This will be more or less a tutorial, it is still up to you to figure out some steps tho.</p>
-<h3 id="Arch-Shell"><a href="#Arch-Shell" class="headerlink" title="Arch Shell"></a>Arch Shell</h3><p>To start, get yourself on an Arch shell, this can be done in a couple ways, commonly you can download an .iso from <a href="https://archlinux.org/" target="_blank" rel="noopener">https://archlinux.org/</a> flash it on an USB stick and boot from it.</p>
-<p>Alternatively, if you’re already in a Linux system, this can be done by downloading a bootstrap root image instead and using chroot. Be careful as this only allows you to install from one system to another, meaning that the original system still needs to work somehow, this is especially useful when <strong>installing Arch on a server</strong>. <a href="https://wiki.archlinux.org/title/Chroot" target="_blank" rel="noopener">https://wiki.archlinux.org/title/Chroot</a></p>
-<h3 id="Setup-Folder’s"><a href="#Setup-Folder’s" class="headerlink" title="Setup Folder’s"></a>Setup Folder’s</h3><p>The first step is to figure out your disk path, usually it is something like <code>/dev/sd{a,b,c}</code>, <code>/dev/nvme{0,1,2}n1</code> and sometimes when running on a server <code>/dev/vd{a,b,c}</code>.</p>
-<p>After that we will be setting up the partition layout, I will be using fdisk and assuming <code>/dev/nvme0n1</code> here. The partition layout final should be <code>EFI + swap + /</code>. Some of the “commands” that we will be using are.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">fdisk /dev/nvme0n1</span><br><span class="line">m # print help</span><br><span class="line">p # prints disk</span><br><span class="line">g # create GPT partition table</span><br><span class="line">n # create a new partition</span><br><span class="line">t # change partition type</span><br><span class="line">w # write the partition table</span><br></pre></td></tr></table></figure>
-
-<p>This is how I would do mine, I have a 2TB NVMe and 64GB of RAM, so please adapt it to your specs.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">fdisk /dev/nvme0n1</span><br><span class="line">p # ensure is the right device</span><br><span class="line">g # create GPT partition table</span><br><span class="line">n # create EFI</span><br><span class="line">  &lt;enter&gt; # Partition number</span><br><span class="line">  &lt;enter&gt; # First sector</span><br><span class="line">  +1G # Last sector, aka the size</span><br><span class="line">n # create swap</span><br><span class="line">  &lt;enter&gt; # Partition number</span><br><span class="line">  &lt;enter&gt; # First sector</span><br><span class="line">  +128G # I like to have 2x RAM for no good reason</span><br><span class="line">n # create /</span><br><span class="line">  &lt;enter&gt; # Partition number</span><br><span class="line">  &lt;enter&gt; # First sector</span><br><span class="line">  +1536G # +10% overprovisioning</span><br><span class="line">t</span><br><span class="line">  1 # Partition number</span><br><span class="line">  1 # Partition type, EFI System</span><br><span class="line">t</span><br><span class="line">  2 # Partition number</span><br><span class="line">  19 # Partition type, Linux swap</span><br><span class="line">p # check partition layout, 3 partitions, EFI, swap and Linux</span><br><span class="line">w # commit to changes</span><br></pre></td></tr></table></figure>
-
-<p>After that, we need to mount and enable it.</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">swapon /dev/nvme0n1p2</span><br><span class="line">mount /dev/nvme0n1p3 /mnt</span><br><span class="line">mkdir /mnt/boot</span><br><span class="line">mount /dev/nvme0n1p1 /mnt/boot</span><br></pre></td></tr></table></figure>
-
-<p>##</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://eduardorfs.github.io/2024/01/08/installing_my_arch_linux/" data-id="clzdev4xj00017fsba8tvqldk" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/setup/">setup</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-very_dependent_types" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2024/01/01/very_dependent_types/" class="article-date">
-  <time datetime="2024-01-02T01:15:00.000Z" itemprop="datePublished">2024-01-01</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2024/01/01/very_dependent_types/">Induction and self dependent types</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>When moving from <a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">Lambda Calculus</a> to a dependently typed version of the Lambda Calculus such as the <a href="https://en.wikipedia.org/wiki/Calculus_of_constructions" target="_blank" rel="noopener">Calculus of Constructions</a> one may want to do proofs by induction, but this is not a trivial matter.</p>
-<h2 id="Church-Encoding"><a href="#Church-Encoding" class="headerlink" title="Church Encoding"></a>Church Encoding</h2><p>Compute power can be internalized using strictly lambdas using <a href="https://en.wikipedia.org/wiki/Church_encoding" target="_blank" rel="noopener">Church encoding</a> as shown by <a href="https://en.wikipedia.org/wiki/Calculus_of_constructions" target="_blank" rel="noopener">Internalizing computing</a>, so let’s try to apply the same technique here.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ind_bool : (b : Bool) -&gt; (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P b = _;</span><br><span class="line">Bool = (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P b; <span class="comment">// BAD</span></span><br></pre></td></tr></table></figure>
-
-<p>This given type for Bool has 3 distinct problems.</p>
-<p><em>Type recursion</em>, <code>(P : Bool -&gt; Type) -&gt; _</code>, here is “okay”, as <code>Bool</code> appears strictly in a positive and erasable position, allowing a traditional fixpoint to works.</p>
-<p><em>Mutual recursion</em>, <code>P true -&gt; P false -&gt; P _</code>, is weird but could likely in principle be accepted as long as it only appears in positive and erasable positions which is the case here.</p>
-<p><em>Self dependency</em>, the <code>P b</code>, requires something novel, somehow the type of the boolean would need to depend on the instance of the boolean, during the type definition itself.</p>
-<h2 id="GADT’s"><a href="#GADT’s" class="headerlink" title="GADT’s"></a>GADT’s</h2><h2 id="Self-Dependent-Types"><a href="#Self-Dependent-Types" class="headerlink" title="Self Dependent Types"></a>Self Dependent Types</h2><p>When looking at specific instances of <code>ind_bool</code>, some of the desirable behaviour can be seen. As what is known as “very dependent types” aka when the type of a term depend on itself. So I will be calling those: Self Dependent Types.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">(ind_bool <span class="literal">true</span> : (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P <span class="literal">true</span>)</span><br><span class="line">(ind_bool <span class="literal">false</span> : (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// so by internalizing</span></span><br><span class="line">(<span class="literal">true</span> : (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P <span class="literal">true</span>);</span><br><span class="line">(<span class="literal">false</span> : (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P <span class="literal">false</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// in fact those types can almost be done using mutual recursion</span></span><br><span class="line">Bool : Type;</span><br><span class="line"><span class="literal">true</span> : Bool;</span><br><span class="line"><span class="literal">false</span> : Bool;</span><br><span class="line"></span><br><span class="line">Bool = (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P <span class="literal">true</span>;</span><br><span class="line"><span class="literal">true</span> = P =&gt; x =&gt; y =&gt; x;</span><br><span class="line"><span class="literal">false</span> = P =&gt; x =&gt; y =&gt; y; <span class="comment">// sadly this fails</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Self-Types"><a href="#Self-Types" class="headerlink" title="Self Types"></a>Self Types</h2><p>The example above shows that mutual recursion is almost enough(in fact it may be enough) and that likely the only missing requirement is a way of abstracting over <em>self</em>. Peng Fu and Aaron Stump originally proposed a way to solve this issue, as part of <a href="https://homepage.divms.uiowa.edu/~astump/papers/fu-stump-rta-tlca-14.pdf" target="_blank" rel="noopener">Self Types</a>, a type where the type itself can depend on it’s own instances.</p>
-<p>This when combined with mutual recursion would allow for induction through lambda-encodings.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// rule</span></span><br><span class="line">Γ, x : @<span class="keyword">self</span>(x). T |- T : Type</span><br><span class="line">------------------------------</span><br><span class="line">Γ |- @<span class="keyword">self</span>(x). T : Type</span><br><span class="line"></span><br><span class="line"><span class="comment">// example</span></span><br><span class="line">Bool : Type;</span><br><span class="line"><span class="literal">true</span> : Bool;</span><br><span class="line"><span class="literal">false</span> : Bool;</span><br><span class="line"></span><br><span class="line">Bool = @<span class="keyword">self</span>(b). (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P b;</span><br><span class="line"><span class="literal">true</span> = P =&gt; x =&gt; y =&gt; x;</span><br><span class="line"><span class="literal">false</span> = P =&gt; x =&gt; y =&gt; y;</span><br></pre></td></tr></table></figure>
-
-<p>While self types works, it comes with many issues, first, the typing rule for self is weird. Somehow before <code>@self(x). T</code> is checked to be a type it is already added in the context, this makes it an <em>assumption</em>, while it works from a logics point of view, it makes designing an algorithm more annoying and making it rely on assumptions.</p>
-<p>Additionally in this convenient way it would rely on <code>Bool</code> to expand inside of itself, leading to also another assumption on the fixpoint, this is not required but using self types without the fixpoint magic is hard.</p>
-<p>There are a couple tricks that can be done to improve it here, integrating it on the fixpoint is one option, which subsumes mutual recursion as self-types allows for induction-induction.</p>
-<h3 id="Self-Fix"><a href="#Self-Fix" class="headerlink" title="Self + Fix"></a>Self + Fix</h3><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Γ, x : @<span class="keyword">self</span>(x). T |- T ⇐ Type</span><br><span class="line">------------------------------</span><br><span class="line">Γ |- @<span class="keyword">self</span>(x). T ⇒ Type</span><br><span class="line"></span><br><span class="line">Γ, x : @<span class="keyword">self</span>(x). T |- M : T[x := @fix(x). M]</span><br><span class="line">--------------------------------------------</span><br><span class="line">Γ |- @fix(x). M ⇐ @<span class="keyword">self</span>(x). T</span><br><span class="line"></span><br><span class="line">Γ |- M ⇒ @<span class="keyword">self</span>(x). T</span><br><span class="line">--------------------</span><br><span class="line">Γ |- M ⇐ T[x := M]</span><br><span class="line"></span><br><span class="line"><span class="comment">// it is possible, but examples suck</span></span><br></pre></td></tr></table></figure>
-
-<p>While the first presentation leads to a very small calculus, it does one weird substitution during type checking on the fixpoint, which makes me feel uneasy, additionally it is not ergonomic.</p>
-<h3 id="Delayed-Self"><a href="#Delayed-Self" class="headerlink" title="Delayed Self"></a>Delayed Self</h3><p>Another interesting presentation is to delay the assumption, by placing them on the introduction and elimination rule, this allows to easily retrofit self-types in existing systems. This seems to be weaker as I was not able to encode induction-induction using simple recursion, but if mutual recursion is allowed it works naturally.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Γ |- A ⇐ Type  Γ, x : A |- B ⇐ Type</span><br><span class="line">-----------------------------------</span><br><span class="line">Γ |- @<span class="keyword">self</span>(x : A). B ⇒ Type</span><br><span class="line"></span><br><span class="line">Γ |- A ≡ @<span class="keyword">self</span>(x : A). B  Γ |- M ⇒ B[x := M]</span><br><span class="line">--------------------------------------------</span><br><span class="line">Γ |- M ⇐ @<span class="keyword">self</span>(x : A). B</span><br><span class="line"></span><br><span class="line">Γ |- A ≡ @<span class="keyword">self</span>(x : A). B  Γ |- M ⇒ @<span class="keyword">self</span>(x : A). B</span><br><span class="line">--------------------------------------------------</span><br><span class="line">Γ |- M ⇐ T[x := M]</span><br><span class="line"></span><br><span class="line"><span class="comment">// boolean works</span></span><br><span class="line">Bool : Type;</span><br><span class="line"><span class="literal">true</span> : Bool;</span><br><span class="line"><span class="literal">false</span> : Bool;</span><br><span class="line"></span><br><span class="line">Bool = @<span class="keyword">self</span>(b : Bool). (P : Bool -&gt; Type) -&gt; P <span class="literal">true</span> -&gt; P <span class="literal">false</span> -&gt; P b;</span><br><span class="line"><span class="literal">true</span> = P =&gt; x =&gt; y =&gt; x;</span><br><span class="line"><span class="literal">false</span> = P =&gt; x =&gt; y =&gt; y;</span><br></pre></td></tr></table></figure>
-
-<p>This works and in fact can be made quite ergonomic, but it is weird, as in it seems like there is a more general solution to it, what if the equality constraint is lifted?</p>
-<h2 id="Dependent-Intersection"><a href="#Dependent-Intersection" class="headerlink" title="Dependent Intersection"></a>Dependent Intersection</h2><p>An alternative to self-types proposed also by Aaron Stump are <a href="https://homepage.cs.uiowa.edu/~astump/papers/from-realizability-to-induction-aaron-stump.pdf" target="_blank" rel="noopener">Dependent Intersections</a>, which while they don’t require mutual recursion, they require a curry-style presentation.</p>
-<p>But when looking</p>
-<h2 id="Maybe-Mutual-Recursion"><a href="#Maybe-Mutual-Recursion" class="headerlink" title="Maybe Mutual Recursion"></a>Maybe Mutual Recursion</h2><p>In retrospect, maybe mutual recursion and very dependent types are enough, allowing self types to be described using lambda encodings, I personally didn’t spend too much time on this, but I failed to come up with an argument on why this is not enough.</p>
-<h2 id="Mutual-recursion"><a href="#Mutual-recursion" class="headerlink" title="Mutual recursion"></a>Mutual recursion</h2><p>Let’s imagine ``</p>
-<p>Could we somehow accept this form of mutual recursion and somehow handle the free variable <code>P b</code>.</p>
-<h3 id="Recursion-and-Mutual-recursion"><a href="#Recursion-and-Mutual-recursion" class="headerlink" title="Recursion and Mutual recursion"></a>Recursion and Mutual recursion</h3><ul>
-<li>Mutual recursion, somehow the type of Bool references booleans such</li>
-</ul>
-<h2 id="Dependent-Intersections"><a href="#Dependent-Intersections" class="headerlink" title="Dependent Intersections"></a>Dependent Intersections</h2><h2 id="Church-Encoding-1"><a href="#Church-Encoding-1" class="headerlink" title="Church Encoding"></a>Church Encoding</h2><p>One of the most natural things to do in the Lambda Calculus is to describe data such as the booleans, naturals, pairs and list. This is often done through <a href="https://en.wikipedia.org/wiki/Church_encoding" target="_blank" rel="noopener">Church encoding</a>, but most people don’t seem to be able to mechanically derive those encodings.</p>
-<h2 id="Computing-Power"><a href="#Computing-Power" class="headerlink" title="Computing Power"></a>Computing Power</h2><p>The main insight provided here is that church encodings is just the internalization of the elimination function for some data.</p>
-<p>Every data structure seems to come with a function that is capable of doing every fundamental operation on the data itself. This single function provides all the computing power possible for the data. Such as <code>case</code> for booleans and <code>fold</code> for list.</p>
-<p>In fact, it is easy to notice that anything that can describe <code>case</code> can be used as a boolean, such as using the empty list as <code>false</code> and all non-empty list as <code>true</code>.</p>
-<h2 id="Booleans"><a href="#Booleans" class="headerlink" title="Booleans"></a>Booleans</h2><p>Let’s reinvent church encoding for the booleans step by step, as mentioned above to describe some piece of data, internalizing the elimination rule is enough, for booleans this is the <code>case</code> function.</p>
-<p>In more concrete terms, the goal is to meet a definition of <code>true</code>, <code>false</code> and <code>case</code> that suffices the following rules:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> === case <span class="literal">true</span>;</span><br><span class="line"><span class="literal">false</span> === case <span class="literal">false</span>;</span><br><span class="line">case <span class="literal">true</span> then <span class="keyword">else</span> === then;</span><br><span class="line">case <span class="literal">false</span> then <span class="keyword">else</span> === <span class="keyword">else</span>;</span><br></pre></td></tr></table></figure>
-
-<p>A nice property to notice here is that <code>b === case b</code>, so a valid definition is that <code>case === id</code>, which leads to:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">case = x =&gt; x;</span><br><span class="line">(case <span class="literal">true</span>) then <span class="keyword">else</span> === then;</span><br><span class="line">(case <span class="literal">false</span>) then <span class="keyword">else</span> === <span class="keyword">else</span>;</span><br><span class="line"><span class="comment">// implies in</span></span><br><span class="line"><span class="literal">true</span> then <span class="keyword">else</span> === then;</span><br><span class="line"><span class="literal">false</span> then <span class="keyword">else</span> === <span class="keyword">else</span>;</span><br></pre></td></tr></table></figure>
-
-<p>Well <code>true</code> and <code>false</code> would need to be functions of the format <code>then =&gt; else =&gt; _</code> to meet the rules, but they need to return different values.</p>
-<p>Now we have a set of equations that can be solved, by applying some algebra.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// assume</span></span><br><span class="line"><span class="literal">true</span> = then =&gt; <span class="keyword">else</span> =&gt; ?<span class="literal">true</span>;</span><br><span class="line"><span class="literal">true</span> then <span class="keyword">else</span> === then;</span><br><span class="line"><span class="comment">// expands</span></span><br><span class="line">(then =&gt; <span class="keyword">else</span> =&gt; ?<span class="literal">true</span>) then <span class="keyword">else</span> === then;</span><br><span class="line"><span class="comment">// reduce</span></span><br><span class="line">?<span class="literal">true</span> === then;</span><br><span class="line"></span><br><span class="line"><span class="comment">// same for false</span></span><br><span class="line"><span class="literal">false</span> = then =&gt; <span class="keyword">else</span> =&gt; ?<span class="literal">false</span>;</span><br><span class="line"><span class="literal">false</span> then <span class="keyword">else</span> === <span class="keyword">else</span>;</span><br><span class="line">(then =&gt; <span class="keyword">else</span> =&gt; ?<span class="literal">false</span>) then <span class="keyword">else</span> === <span class="keyword">else</span>;</span><br><span class="line">?<span class="literal">false</span> === <span class="keyword">else</span>;</span><br></pre></td></tr></table></figure>
-
-<p>This leads to the canonical representation of the booleans.</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">true</span> = then =&gt; <span class="keyword">else</span> =&gt; then;</span><br><span class="line"><span class="literal">false</span> = then =&gt; <span class="keyword">else</span> =&gt; <span class="literal">false</span>;</span><br><span class="line">case = x =&gt; x;</span><br></pre></td></tr></table></figure>
-
-<h2 id="Finding-types"><a href="#Finding-types" class="headerlink" title="Finding types"></a>Finding types</h2><p>Another interesting property of the internalized version being the same as the elimination function is that the type of <code>fold n</code> and <code>n</code> will be the same, in fact a good way to find is to start with the type of the elimination function:</p>
-<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// make Nat equal to the type of fold and remove the first parameter</span></span><br><span class="line">fold : (n : Nat) -&gt; (A : Type) -&gt; A -&gt; (A -&gt; A) -&gt; A;</span><br><span class="line">Nat = (n : Nat) -&gt; (A : Type) -&gt; A -&gt; (A -&gt; A) -&gt; A;</span><br><span class="line">Nat = (A : Type) -&gt; A -&gt; (A -&gt; A) -&gt; A;</span><br><span class="line"></span><br><span class="line"><span class="comment">// make Bool equal to the type of case and remove the first parameter</span></span><br><span class="line">case : (b : Bool) -&gt; (A : Type) -&gt; A -&gt; A -&gt; A;</span><br><span class="line">Bool = (b : Bool) -&gt; (A : Type) -&gt; A -&gt; A -&gt; A;</span><br><span class="line">Bool = (A : Type) -&gt; A -&gt; A -&gt; A;</span><br></pre></td></tr></table></figure>
-
-<p>An interesting property is that for most examples of structural recursion, there is no type level recursion.</p>
-<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
-<li><a href="https://en.wikipedia.org/wiki/Lambda_calculus" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Lambda_calculus</a></li>
-<li><a href="https://en.wikipedia.org/wiki/Calculus_of_constructions" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Calculus_of_constructions</a></li>
-<li><a href="https://eduardorfs.github.io/2023/06/27/internalizing_computing/">https://eduardorfs.github.io/2023/06/27/internalizing_computing/</a></li>
-<li><a href="https://homepage.divms.uiowa.edu/~astump/papers/fu-stump-rta-tlca-14.pdf" target="_blank" rel="noopener">https://homepage.divms.uiowa.edu/~astump/papers/fu-stump-rta-tlca-14.pdf</a></li>
-<li><a href="https://homepage.cs.uiowa.edu/~astump/papers/from-realizability-to-induction-aaron-stump.pdf" target="_blank" rel="noopener">https://homepage.cs.uiowa.edu/~astump/papers/from-realizability-to-induction-aaron-stump.pdf</a></li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://eduardorfs.github.io/2024/01/01/very_dependent_types/" data-id="clzdev4xn00077fsbx2i76mr4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/induction/">induction</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/lambda/">lambda</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/theory/">theory</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/typer/">typer</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-internalizing_computing" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2023/06/27/internalizing_computing/" class="article-date">
@@ -703,7 +455,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cross-compile/">cross-compile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/errors/">errors</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/induction/">induction</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lambda/">lambda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linear/">linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mobile/">mobile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/native/">native</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reason/">reason</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rewriting/">rewriting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/setup/">setup</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/theory/">theory</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typer/">typer</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/cross-compile/">cross-compile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/errors/">errors</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/lambda/">lambda</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linear/">linear</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mobile/">mobile</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/native/">native</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ocaml/">ocaml</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/reason/">reason</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rewriting/">rewriting</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/theory/">theory</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/typer/">typer</a></li></ul>
     </div>
   </div>
 
@@ -713,7 +465,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/cross-compile/" style="font-size: 10px;">cross-compile</a> <a href="/tags/errors/" style="font-size: 10px;">errors</a> <a href="/tags/induction/" style="font-size: 10px;">induction</a> <a href="/tags/lambda/" style="font-size: 12.5px;">lambda</a> <a href="/tags/linear/" style="font-size: 10px;">linear</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/mobile/" style="font-size: 10px;">mobile</a> <a href="/tags/native/" style="font-size: 10px;">native</a> <a href="/tags/ocaml/" style="font-size: 15px;">ocaml</a> <a href="/tags/reason/" style="font-size: 10px;">reason</a> <a href="/tags/rewriting/" style="font-size: 10px;">rewriting</a> <a href="/tags/setup/" style="font-size: 10px;">setup</a> <a href="/tags/theory/" style="font-size: 20px;">theory</a> <a href="/tags/typer/" style="font-size: 17.5px;">typer</a>
+      <a href="/tags/cross-compile/" style="font-size: 10px;">cross-compile</a> <a href="/tags/errors/" style="font-size: 10px;">errors</a> <a href="/tags/lambda/" style="font-size: 10px;">lambda</a> <a href="/tags/linear/" style="font-size: 10px;">linear</a> <a href="/tags/mobile/" style="font-size: 10px;">mobile</a> <a href="/tags/native/" style="font-size: 10px;">native</a> <a href="/tags/ocaml/" style="font-size: 15px;">ocaml</a> <a href="/tags/reason/" style="font-size: 10px;">reason</a> <a href="/tags/rewriting/" style="font-size: 10px;">rewriting</a> <a href="/tags/theory/" style="font-size: 20px;">theory</a> <a href="/tags/typer/" style="font-size: 15px;">typer</a>
     </div>
   </div>
 
@@ -722,7 +474,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">August 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/01/">January 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/08/">August 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/01/">January 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li></ul>
     </div>
   </div>
 
@@ -739,19 +491,19 @@
           </li>
         
           <li>
-            <a href="/2024/01/08/installing_my_arch_linux/">Installing my Arch Linux</a>
-          </li>
-        
-          <li>
-            <a href="/2024/01/01/very_dependent_types/">Induction and self dependent types</a>
-          </li>
-        
-          <li>
             <a href="/2023/06/27/internalizing_computing/">Internalizing computing</a>
           </li>
         
           <li>
             <a href="/2023/01/08/weakening_on_linear_f/">A tale of sum types on Linear F</a>
+          </li>
+        
+          <li>
+            <a href="/2021/09/26/a_different_level_based_typer/">A different level based typer</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/19/journey_into_reason_mobile/">A journey into Reason Mobile</a>
           </li>
         
       </ul>
